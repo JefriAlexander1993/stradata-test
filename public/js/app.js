@@ -5181,7 +5181,8 @@ __webpack_require__.r(__webpack_exports__);
       },
       message: "",
       alert: false,
-      classAlert: ""
+      classAlert: "",
+      errors: {}
     };
   },
   mounted: function mounted() {
@@ -5211,6 +5212,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     filterPersonPublic: function filterPersonPublic() {
       var _this2 = this;
+      this.errors = {};
       this.loading = true;
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/v1/filter-person-public", {
         token: this.$store.state.token,
@@ -5227,9 +5229,13 @@ __webpack_require__.r(__webpack_exports__);
         _this2.loading = false;
       })["catch"](function (error) {
         _this2.alert = true;
-        _this2.classAlert = error.data["class"];
-        console.log(error);
+        _this2.loading = false;
+        _this2.classAlert = error.response.data["class"];
+        _this2.message = error.response.data.execution_status;
+        _this2.errors = error.response.data.data;
+        console.log("this.errors ", _this2.errors);
       });
+      // }
     },
     logout: function logout() {
       var _this3 = this;
@@ -5266,9 +5272,10 @@ __webpack_require__.r(__webpack_exports__);
     },
     clearFilter: function clearFilter() {
       this.dataFilter.search = "";
-      this.dataFilter.porcentage = "";
+      this.dataFilter.percentage = "";
       this.personPublics = [];
       this.alert = false;
+      this.errors = [];
     }
   }
 });
@@ -5497,9 +5504,21 @@ var render = function render() {
     staticClass: "card-body"
   }, [_c("div", {
     staticClass: "row"
+  }, [Object.entries(_vm.errors).length > 0 ? _c("div", {
+    staticClass: "col-xs-12 col-sm-12 col-md-12 col-lg-12"
   }, [_c("div", {
-    staticClass: "col-xs-4 col-sm-12 col-md-6 col-lg-3"
-  }, [_vm._m(0), _c("input", {
+    "class": _vm.classAlert,
+    staticStyle: {
+      "font-size": "14px"
+    },
+    attrs: {
+      role: "alert"
+    }
+  }, [_vm.errors ? _c("p", [_c("b", [_vm._v("Por favor corrige los siguientes errores:")]), _vm._v(" "), _c("ul", _vm._l(_vm.errors, function (value) {
+    return _c("li", [_vm._v("\n                                    " + _vm._s(value[0]) + "\n                                ")]);
+  }), 0)]) : _vm._e()])]) : _vm._e(), _vm._v(" "), _c("div", {
+    staticClass: "col-xs-4 col-sm-12 col-md-6 col-lg-4"
+  }, [_vm._m(0), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
       rawName: "v-model",
@@ -5507,6 +5526,9 @@ var render = function render() {
       expression: "dataFilter.search"
     }],
     staticClass: "form-control",
+    attrs: {
+      placeholder: "Jorge Benavidez"
+    },
     domProps: {
       value: _vm.dataFilter.search
     },
@@ -5526,6 +5548,12 @@ var render = function render() {
       expression: "dataFilter.percentage"
     }],
     staticClass: "form-control",
+    attrs: {
+      type: "number",
+      min: "0",
+      max: "100",
+      placeholder: "75.00"
+    },
     domProps: {
       value: _vm.dataFilter.percentage
     },
@@ -5536,14 +5564,14 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", {
-    staticClass: "col-xs-4 col-sm-12 col-md-4 col-lg-3"
+    staticClass: "col-xs-4 col-sm-12 col-md-4 col-lg-2"
   }, [_vm._m(2), _c("br"), _c("button", {
-    staticClass: "btn btn-secondary",
+    staticClass: "btn btn-secondary btn-sm",
     on: {
       click: _vm.clearFilter
     }
   }, [_vm._v("Limpiar")]), _vm._v(" "), _c("button", {
-    staticClass: "btn btn-primary",
+    staticClass: "btn btn-primary btn-sm",
     on: {
       click: _vm.filterPersonPublic
     }
@@ -5571,15 +5599,21 @@ var render = function render() {
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("label", [_c("b", [_vm._v("Nombres y apellidos")])]);
+  return _c("label", {
+    staticClass: "label-control"
+  }, [_c("b", [_vm._v("Nombres y apellidos(*)")])]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("label", [_c("b", [_vm._v("Porcentaje de concidencia")])]);
+  return _c("label", {
+    staticClass: "label-control"
+  }, [_c("b", [_vm._v("Porcentaje de concidencia")])]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("label", [_c("b", [_vm._v("Acción")])]);
+  return _c("label", {
+    staticClass: "label-control"
+  }, [_c("b", [_vm._v("Acción")])]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
@@ -11166,7 +11200,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.card-header[data-v-124c0b78] {\n        background-color: #0d6efd;\n        color: white !important;\n}\n\n", ""]);
+exports.push([module.i, "\n.card-header[data-v-124c0b78] {\n        background-color: #0d6efd;\n        color: white !important;\n}\n.label-control[data-v-124c0b78]{\n    font-size: 13px;\n}\n\n", ""]);
 
 // exports
 
@@ -59238,8 +59272,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\laragon\www\Proyectos_personales\Pruebas\stradata_7\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\laragon\www\Proyectos_personales\Pruebas\stradata_7\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\laragon\www\Proyectos_personales\Pruebas\stradata-test\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\laragon\www\Proyectos_personales\Pruebas\stradata-test\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

@@ -9,15 +9,34 @@
               </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-xs-4 col-sm-12 col-md-6 col-lg-3"><label><b>Nombres y apellidos</b></label><input class="form-control" v-model="dataFilter.search"/></div>
-                    <div class="col-xs-4 col-sm-12 col-md-6 col-lg-3"><label><b>Porcentaje de concidencia</b></label><input class="form-control" v-model="dataFilter.percentage"/></div>
-                    <div class="col-xs-4 col-sm-12 col-md-4 col-lg-3"><label><b>Acción</b></label><br/><button class="btn btn-secondary" @click="clearFilter">Limpiar</button> <button class="btn btn-primary" @click="filterPersonPublic">Buscar</button><!-- <button class="btn btn-success" @click="exportExcel">Export data</button>--></div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-if="Object.entries(errors).length>0">
+                        <div :class="classAlert" role="alert" style="font-size: 14px;">
+                            <p v-if="errors">
+                                <b>Por favor corrige los siguientes errores:</b>
+                                <ul>
+                                    <li v-for="value in errors">
+                                        {{ value[0] }}
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-4 col-sm-12 col-md-6 col-lg-4">
+                        <label class="label-control"><b>Nombres y apellidos(*)</b></label>
+                        <input class="form-control" v-model="dataFilter.search" placeholder="Jorge Benavidez"/>
+
+                    </div>
+                    <div class="col-xs-4 col-sm-12 col-md-6 col-lg-3"><label class="label-control"><b>Porcentaje de concidencia</b></label><input class="form-control" type="number" min="0"  max="100" v-model="dataFilter.percentage" placeholder="75.00"/></div>
+                    <div class="col-xs-4 col-sm-12 col-md-4 col-lg-2"><label class="label-control"><b>Acción</b></label><br/><button class="btn btn-secondary btn-sm" @click="clearFilter">Limpiar</button> <button class="btn btn-primary btn-sm" @click="filterPersonPublic">Buscar</button><!-- <button class="btn btn-success" @click="exportExcel">Export data</button>--></div>
 
                     <div class="col-xs-4 col-sm-12 col-md-8 col-lg-3 mt-2" v-if="alert">
                         <div :class="classAlert" role="alert" style="font-size: 14px;">
                             {{message}}
                         </div>
                     </div>
+
                 </div>
 
             <div v-if="loading">
@@ -77,7 +96,8 @@ export default{
             },
             message:"",
             alert:false,
-            classAlert:""
+            classAlert:"",
+            errors:{}
         }
     },
     mounted(){
@@ -109,26 +129,32 @@ export default{
             console.log('this.file ',this.file );
         },
         filterPersonPublic(){
-            this.loading = true;
-            axios
-                .post("/api/v1/filter-person-public",{token:this.$store.state.token, data:this.dataFilter})
-                .then((response) => {
-                    this.alert= true;
-                    this.message =response.data.execution_status;
-                    this.classAlert=response.data.class;
-                    this.personPublics =
-                    response.data.data.sort(function (a, b){
-                        return (b.porcentage - a.porcentage)
+                this.errors ={};
+                this.loading = true;
+                axios
+                    .post("/api/v1/filter-person-public",{token:this.$store.state.token, data:this.dataFilter})
+                    .then((response) => {
+                        this.alert= true;
+                        this.message =response.data.execution_status;
+                        this.classAlert=response.data.class;
+                        this.personPublics =
+                        response.data.data.sort(function (a, b){
+                            return (b.porcentage - a.porcentage)
+                        })
+                        localStorage.removeItem('data');
+                        localStorage.setItem('data', JSON.stringify(this.personPublics));
+                        this.loading = false;
                     })
-                    localStorage.removeItem('data');
-                    localStorage.setItem('data', JSON.stringify(this.personPublics));
-                    this.loading = false;
-                })
-                .catch((error) => {
-                    this.alert= true;
-                    this.classAlert=error.data.class;
-                console.log(error);
-                });
+                    .catch((error) => {
+
+                        this.alert= true;
+                        this.loading= false;
+                        this.classAlert= error.response.data.class;
+                        this.message = error.response.data.execution_status;
+                        this.errors = error.response.data.data;
+                        console.log("this.errors ",this.errors );
+                    });
+                // }
         },
         logout() {
             axios
@@ -167,10 +193,12 @@ export default{
                 });
         },
         clearFilter(){
+
             this.dataFilter.search ="";
-            this.dataFilter.porcentage = "";
+            this.dataFilter.percentage = "";
             this.personPublics =[] ;
             this.alert = false;
+            this.errors = [];
 
 
         }
@@ -182,6 +210,9 @@ export default{
         background-color: #0d6efd;
         color: white !important;
 
+}
+.label-control{
+    font-size: 13px;
 }
 
 </style>

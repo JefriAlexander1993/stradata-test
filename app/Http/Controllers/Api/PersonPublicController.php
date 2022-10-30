@@ -12,17 +12,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Str;
+use App\PersonPublicModel;
+use Illuminate\Support\Facades\Validator;
 
 class PersonPublicController extends Controller
 {
-    private $arrayPersonPublicFilter =[];
+    private $arrayPersonPublicFilter = [];
     public function __construct()
     {
         $this->middleware('auth:api');
-    }
-    public function fileImportExport()
-    {
-        return view('file-import');
     }
 
     /**
@@ -31,7 +29,7 @@ class PersonPublicController extends Controller
     public function fileExport(Request $request)
     {
 
-         return response()->json(new PersonPublicExport($request->data,Carbon::now()->format('Ymdhms').'-person-public-collection.xlsx'),200);
+        return response()->json(new PersonPublicExport($request->data, Carbon::now()->format('Ymdhms') . '-person-public-collection.xlsx'), 200);
 
         // new PersonPublicExport($request->data,$filename);
 
@@ -47,87 +45,115 @@ class PersonPublicController extends Controller
 
     public function filterPersonPublic(Request $request)
     {
-        $search =$request->data['search'];
-        $percentage =$request->data["percentage"];
+        $search = is_null($request->data['search']) ? "" : $request->data['search'];
+        $percentage = is_null($request->data["percentage"]) ? "" : $request->data["percentage"];
+        $data = [
+            'name' => $search,
+            'percentage' => $percentage
+        ];
+
         try {
 
-            $personPublics = PersonPublic::where('name', 'like', "%$search%")->get();
-            $data = DB::select("select *,100.00 as porcentage from person_publics where soundex(name) =  SOUNDEX( '$search' )");
 
+            $validate = PersonPublicModel::getValidator($data);
 
-            if(count($data)>0){
+            if ($validate->fails()) {
+
                 return response()->json(
                     [
-                        'data'=>$data,'uuid'=>Str::uuid(),
-                        'search_name'=> $search ,
-                        'percent_search'=>100.00,
-                        'execution_status'=>"Registro encontrado",
-                        "error"=>false,
-                        'count'=>count($data),
-                        "class"=>'alert alert-success'
+                        'data' => $validate->errors(),
+                        'uuid' => Str::uuid(),
+                        'search_name' => $search,
+                        'percent_search' => $percentage,
+                        'execution_status' => "Los datos ingresados no cumple con lo requerido",
+                        "error" => true,
+                        'count' => 0,
+                        "class" => 'alert alert-danger'
                     ],
-                200);
-
+                    400
+                );
             }
 
-            $this->arrayPersonPublicFilter = [];
+            $consultPersonPublic = PersonPublicModel::consultPersonPublic($search);
 
-            foreach ($personPublics as $key => $value) {
-                $this->_levenshtein($value->name, $search ,$value, $percentage);
+            if (count($consultPersonPublic['data']) > 0) {
+                return response()->json(
+                    [
+                        'data' => $data,
+                        'uuid' => Str::uuid(),
+                        'search_name' => $search,
+                        'percent_search' => 100.00,
+                        'execution_status' => "Registro encontrado",
+                        "error" => false,
+                        'count' => count($data),
+                        "class" => 'alert alert-success'
+                    ],
+                    200
+                );
+            }
+
+
+            foreach ($consultPersonPublic['personPublics'] as $key => $value) {
+                $this->_levenshtein($value->name, $search, $value, $percentage);
             }
 
             return response()->json(
                 [
-                    'data'=>$this->arrayPersonPublicFilter,'uuid'=>Str::uuid(),
-                    'search_name'=> $search ,
-                    'percent_search'=>$percentage,
-                    'execution_status'=>"Registros con considencias",
-                    "error"=>false,
-                    'count'=>count($this->arrayPersonPublicFilter),
-                    "class"=>'alert alert-info'
+                    'data' => $this->arrayPersonPublicFilter,
+                    'uuid' => Str::uuid(),
+                    'search_name' => $search,
+                    'percent_search' => $percentage,
+                    'execution_status' => "Registros con considencias",
+                    "error" => false,
+                    'count' => count($this->arrayPersonPublicFilter),
+                    "class" => 'alert alert-info'
                 ],
-            200);
+                200
+            );
         } catch (\Exception $ex) {
             return response()->json(
                 [
-                    'data'=>[],'uuid'=>Str::uuid(),
-                    'search_name'=> $search ,
-                    'percent_search'=>$percentage,
-                    'execution_status'=>"Error del sistema",
-                    "error"=>true,
-                    'count'=>0,
-                    "class"=>'alert alert-danger'
+                    'data' => [],
+                    'uuid' => Str::uuid(),
+                    'search_name' => $search,
+                    'percent_search' => $percentage,
+                    'execution_status' => "Error del sistema",
+                    "error" => true,
+                    'count' => 0,
+                    "class" => 'alert alert-danger'
                 ],
-            500);
+                500
+            );
         }
-
     }
 
-    function _levenshtein($str1, $str2,$value,$percentage) {
+    function _levenshtein($str1, $str2, $value, $percentage)
+    {
 
-        $percentageCoincidence =doubleval(number_format((1 - levenshtein($str1, $str2)/max(strlen($str1), strlen($str2)))*100,2));
+        $percentageCoincidence = doubleval(number_format((1 - levenshtein($str1, $str2) / max(strlen($str1), strlen($str2))) * 100, 2));
 
-        if($percentageCoincidence == $percentage){
+        if ($percentageCoincidence == doubleval($percentage)) {
 
-            array_push($this->arrayPersonPublicFilter,[
-                "porcentage"=>$percentageCoincidence,
-                "name"=>$value->name,
-                "person_type"=>$value->person_type,
-                "type_of_load"=>$value->type_of_load,
-                "department"=>$value->department,
-                "municipality"=>$value->municipality,]);
-        }else{
-            array_push($this->arrayPersonPublicFilter,[
-                "porcentage"=>$percentageCoincidence,
-                "name"=>$value->name,
-                "person_type"=>$value->person_type,
-                "type_of_load"=>$value->type_of_load,
-                "department"=>$value->department,
-                "municipality"=>$value->municipality,]);
-
+            array_push($this->arrayPersonPublicFilter, [
+                "porcentage" => $percentageCoincidence,
+                "name" => $value->name,
+                "person_type" => $value->person_type,
+                "type_of_load" => $value->type_of_load,
+                "department" => $value->department,
+                "municipality" => $value->municipality,
+            ]);
         }
 
+        if($percentage == ""){
 
+            array_push($this->arrayPersonPublicFilter, [
+                "porcentage" => $percentageCoincidence,
+                "name" => $value->name,
+                "person_type" => $value->person_type,
+                "type_of_load" => $value->type_of_load,
+                "department" => $value->department,
+                "municipality" => $value->municipality,
+            ]);
+        }
     }
-
 }

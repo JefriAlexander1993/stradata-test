@@ -23804,28 +23804,6 @@ __webpack_require__.r(__webpack_exports__);
       });
       // }
     },
-    exportExcel: function exportExcel() {
-      var data = localStorage.getItem('data');
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/v1/file-export", {
-        token: this.$store.state.token,
-        data: data
-      }, {
-        headers: {
-          responseType: 'blob'
-        }
-      }).then(function (response) {
-        console.log(response);
-        var blob = new Blob([response.data.data], {
-          type: 'application/vnd.ms-excel'
-        });
-        var link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = 'comisionjv.xlsx';
-        link.click();
-      })["catch"](function (error) {
-        console.log(error);
-      });
-    },
     clearFilter: function clearFilter() {
       this.dataFilter.search = "";
       this.dataFilter.percentage = "";
@@ -24329,7 +24307,11 @@ var render = function render() {
   return _c("div", {
     staticClass: "container"
   }, [_vm.loading ? _c("div", [_c("br"), _c("br"), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("br")]) : _c("div", {
-    staticClass: "login"
+    staticClass: "card"
+  }, [_c("div", {
+    staticClass: "card-header bg-primary text-white"
+  }, [_vm._v("\n                Login\n             ")]), _vm._v(" "), _c("div", {
+    staticClass: "card-body"
   }, [_c("div", {
     staticClass: "row"
   }, [_vm.alert ? _c("div", {
@@ -24408,7 +24390,7 @@ var render = function render() {
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("Ingresar")])])])]);
+  }, [_vm._v("Ingresar")])])])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -24460,7 +24442,13 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "register"
+    staticClass: "container"
+  }, [_c("div", {
+    staticClass: "card"
+  }, [_c("div", {
+    staticClass: "card-header bg-primary text-white"
+  }, [_vm._v("\n            Registro\n         ")]), _vm._v(" "), _c("div", {
+    staticClass: "card-body"
   }, [Object.entries(_vm.errors).length > 0 ? _c("div", {
     staticClass: "col-xs-12 col-sm-12 col-md-12 col-lg-12"
   }, [_c("div", {
@@ -24472,7 +24460,7 @@ var render = function render() {
       role: "alert"
     }
   }, [_vm.errors ? _c("p", [_c("b", [_vm._v("Por favor corrige los siguientes errores:")]), _vm._v(" "), _c("ul", _vm._l(_vm.errors, function (value) {
-    return _c("li", [_vm._v("\n                        " + _vm._s(value[0]) + "\n                    ")]);
+    return _c("li", [_vm._v("\n                                " + _vm._s(value[0]) + "\n                            ")]);
   }), 0)]) : _vm._e()])]) : _vm._e(), _vm._v(" "), _c("form", {
     attrs: {
       autocomplete: "off",
@@ -24589,7 +24577,7 @@ var render = function render() {
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("Guardar")]) : _vm._e()])]);
+  }, [_vm._v("Guardar")]) : _vm._e()])])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -29897,7 +29885,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 exports.i(__webpack_require__(/*! -!../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!bootstrap/dist/css/bootstrap.css */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/bootstrap/dist/css/bootstrap.css"), "");
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n", ""]);
 
 // exports
 
@@ -29935,7 +29923,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.login[data-v-3d6ea3cd]{\n\n    background-color: #fff;\n    border:3px solid #EEE;\n    padding: 10px;\n    margin: 50px auto;\n    width: 500px;\n}\nbutton[data-v-3d6ea3cd]{\n    display: block;\n    margin-top: 10px;\n}\n\n", ""]);
+exports.push([module.i, "\nbutton[data-v-3d6ea3cd]{\n    display: block;\n    margin-top: 10px;\n}\n\n", ""]);
 
 // exports
 
@@ -29954,7 +29942,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.register[data-v-a6ce7422]{\n\n    background-color: #fff;\n    border:3px solid #EEE;\n    padding: 10px;\n    margin: 50px auto;\n    width: 500px;\n}\nbutton[data-v-a6ce7422]{\n    display: block;\n    margin-top: 20px;\n}\n\n", ""]);
+exports.push([module.i, "\nbutton[data-v-a6ce7422]{\n    display: block;\n    margin-top: 20px;\n}\n\n", ""]);
 
 // exports
 
@@ -77413,23 +77401,6 @@ _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_6__["library"].add(_f
 
 /* add font awesome icon component */
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('fa', _fortawesome_vue_fontawesome__WEBPACK_IMPORTED_MODULE_5__["FontAwesomeIcon"]);
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_4__["default"]({
   routes: _app_routes__WEBPACK_IMPORTED_MODULE_2__["routes"],
   mode: "history"

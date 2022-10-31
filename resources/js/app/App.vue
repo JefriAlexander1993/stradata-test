@@ -59,13 +59,6 @@ export default{
 }
 </script>
 <style scope>
-
     @import'~bootstrap/dist/css/bootstrap.css';
-
-
-
-
-
-
 </style>
         <!--  -->

@@ -3,7 +3,6 @@
     <div class="container">
         <div class="card" v-if="this.$store.state.token">
             <div class="card-header primary">
-                <!-- <b> Usuario: </b>{{this.$store.state.user}} - -->
                 <fa icon="search" /> Buscador
               </div>
             <div class="card-body">
@@ -173,29 +172,6 @@ export default{
                         console.log("this.errors ",this.errors );
                     });
                 // }
-        },
-        exportExcel(){
-
-            var data =localStorage.getItem('data');
-
-            axios
-                .post("/api/v1/file-export",{token:this.$store.state.token,data:data},{
-                        headers:{
-                            responseType: 'blob',
-                        }
-                })
-                .then((response) => {
-                    console.log(response);
-                    let blob = new Blob([response.data.data], { type: 'application/vnd.ms-excel' })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'comisionjv.xlsx'
-                    link.click()
-
-                })
-                .catch((error) => {
-                console.log(error);
-                });
         },
         clearFilter(){
 

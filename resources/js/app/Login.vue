@@ -11,7 +11,11 @@
               <br/>
         </div>
 
-        <div class="login" v-else="">
+        <div class="card" v-else="">
+            <div class="card-header bg-primary text-white">
+                Login
+             </div>
+            <div class="card-body">
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-2" v-if="alert">
                         <div :class="classAlert" role="alert" style="font-size: 14px;">
@@ -44,6 +48,7 @@
                     </div>
                     <button type="submit" class="btn btn-success btn-block">Ingresar</button>
                 </form>
+            </div>
         </div>
 </div>
 </template>
@@ -118,15 +123,6 @@ export default {
 }
 </script>
 <style scoped>
-.login{
-
-    background-color: #fff;
-    border:3px solid #EEE;
-    padding: 10px;
-    margin: 50px auto;
-    width: 500px;
-
-}
 button{
     display: block;
     margin-top: 10px;

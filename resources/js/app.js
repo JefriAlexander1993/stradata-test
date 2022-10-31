@@ -13,6 +13,21 @@ import App from "./app/App";
 import {routes} from "./app/routes";
 import {store} from './app/store';
 import VueRouter from "vue-router";
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core';
+
+/* import the fontawesome core */
+import { fas} from '@fortawesome/free-solid-svg-icons';
+import { fab} from '@fortawesome/free-brands-svg-icons';
+/* add icons to the library */
+library.add(fas,fab)
+
+/* add font awesome icon component */
+Vue.component('fa', FontAwesomeIcon)
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

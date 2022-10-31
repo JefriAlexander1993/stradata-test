@@ -1,29 +1,41 @@
 <template>
     <div class="register">
-        <p>There was an error, unable to complete registration.</p>
-        <!-- <div class="alert alert-danger" v-if="error && !success">
-            <p>There was an error, unable to complete registration.</p>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" v-if="Object.entries(errors).length>0">
+            <div :class="classAlert" role="alert" style="font-size: 14px;">
+                <p v-if="errors">
+                    <b>Por favor corrige los siguientes errores:</b>
+                    <ul>
+                        <li v-for="value in errors">
+                            {{ value[0] }}
+                        </li>
+                    </ul>
+                </p>
+            </div>
+
         </div>
-       <div class="alert alert-success" v-if="success">
-            <p>Registration completed. You can now <router-link :to="{name:'login'}">sign in.</router-link></p>
-        </div>-->
-        <form autocomplete="off" @submit.prevent="register" v-if="!success" method="post">
-            <div class="form-group" v-bind:class="{ 'has-error': error && errors.name }">
-                <label for="name">Name</label>
+        <form autocomplete="off" @submit.prevent="register" method="post">
+            <div class="form-group" >
+                <label for="name"><b>Nombre</b></label>
                 <input type="text" id="name" class="form-control" v-model="user.name" required>
-                <span class="help-block" v-if="error && errors.name">{{ errors.name }}</span>
+
             </div>
-            <div class="form-group" v-bind:class="{ 'has-error': error && errors.email }">
-                <label for="email">E-mail</label>
+            <div class="form-group">
+                <label for="email"><b>E-mail</b></label>
                 <input type="email" id="email" class="form-control" placeholder="user@example.com" v-model="user.email" required>
-                <span class="help-block" v-if="error && errors.email">{{ errors.email }}</span>
+
             </div>
-            <div class="form-group" v-bind:class="{ 'has-error': error && errors.password }">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="form-control" v-model="user.password" required>
-                <span class="help-block" v-if="error && errors.password">{{ errors.password }}</span>
+            <div class="form-group">
+                <label for="password"><b>Contraseña</b></label>
+                <input type="password" id="password" class="form-control" v-model="user.password"  placeholder="******" min="6" required>
+
             </div>
-            <button type="submit" class="btn btn-success">Submit</button>
+            <div class="form-group">
+                <label for="confirmedPassword"><b>Confirmar contraseña</b></label>
+                <input type="password" id="confirmedPassword" class="form-control" v-model="user.confirmedPassword"  placeholder="******" min="6">
+
+            </div>
+            <button type="submit" class="btn btn-success" v-if="user.confirmedPassword == user.password">Guardar</button>
         </form>
     </div>
 </template>
@@ -38,22 +50,39 @@ export default {
             user:{
                 name:"",
                 email:"",
-                password:""
+                password:"",
+                confirmedPassword:""
             },
-            success:"",
+            loading:true,
+            classAlert:"",
+            message:"",
+            alert:false,
             errors:[]
+
         }
     },
 
   methods: {
     register() {
       axios
-        .get("https://restcountries.com/api/v1/register")
+        .post("/api/v1/register",this.user)
         .then((response) => {
-                console.log();
-        })
-        .catch((error) => {
-          console.log(error);
+
+            this.loading = false;
+            this.alert= true;
+            this.message = response.data.message;
+            this.classAlert = response.data.classAlert;
+            this.$router.push("/login");
+
+
+            })
+            .catch((error) => {
+            this.errors = error.response.data.data;
+            this.loading = false;
+            this.alert= true;
+            this.message = error.response.data.message;
+            this.classAlert = error.response.data.class;
+            console.log(error);
         });
     },
 
@@ -65,7 +94,7 @@ export default {
 .register{
 
     background-color: #fff;
-    border:1px solid #EEE;
+    border:3px solid #EEE;
     padding: 10px;
     margin: 50px auto;
     width: 500px;

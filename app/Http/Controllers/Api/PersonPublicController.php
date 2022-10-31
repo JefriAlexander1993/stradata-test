@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Excel;
 use Illuminate\Support\Str;
 use App\PersonPublicModel;
+use App\PersonPublicPrevious;
+use App\PersonPublicpreviousModel;
 use Illuminate\Support\Facades\Validator;
 
 class PersonPublicController extends Controller
@@ -20,7 +22,7 @@ class PersonPublicController extends Controller
     private $arrayPersonPublicFilter = [];
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('jwtauth');
     }
 
     /**
@@ -42,11 +44,19 @@ class PersonPublicController extends Controller
 
 
     }
-
+    /*
+    |-------------------------------------------------------------------------------
+    | filterPersonPublic
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/filterPersonPublic
+    | Method:         Post
+    | Description:    Se retorna un objecto con todos las persona publicas que cumplen la condición.
+    */
     public function filterPersonPublic(Request $request)
     {
         $search = is_null($request->data['search']) ? "" : $request->data['search'];
         $percentage = is_null($request->data["percentage"]) ? "" : $request->data["percentage"];
+        $uuid = Str::uuid();
         $data = [
             'name' => $search,
             'percentage' => $percentage
@@ -62,7 +72,7 @@ class PersonPublicController extends Controller
                 return response()->json(
                     [
                         'data' => $validate->errors(),
-                        'uuid' => Str::uuid(),
+                        'uuid' => $uuid,
                         'search_name' => $search,
                         'percent_search' => $percentage,
                         'execution_status' => "Los datos ingresados no cumple con lo requerido",
@@ -75,12 +85,12 @@ class PersonPublicController extends Controller
             }
 
             $consultPersonPublic = PersonPublicModel::consultPersonPublic($search);
-
+            // dd($consultPersonPublic['data']);
             if (count($consultPersonPublic['data']) > 0) {
                 return response()->json(
                     [
-                        'data' => $data,
-                        'uuid' => Str::uuid(),
+                        'data' => $consultPersonPublic['data'],
+                        'uuid' => $uuid,
                         'search_name' => $search,
                         'percent_search' => 100.00,
                         'execution_status' => "Registro encontrado",
@@ -94,13 +104,15 @@ class PersonPublicController extends Controller
 
 
             foreach ($consultPersonPublic['personPublics'] as $key => $value) {
-                $this->_levenshtein($value->name, $search, $value, $percentage);
+                $this->_levenshtein($value->name, $search, $value, $percentage,$uuid);
             }
+
+            PersonPublicpreviousModel::savePersonPublicPrevious($uuid,$this->arrayPersonPublicFilter);
 
             return response()->json(
                 [
                     'data' => $this->arrayPersonPublicFilter,
-                    'uuid' => Str::uuid(),
+                    'uuid' => $uuid,
                     'search_name' => $search,
                     'percent_search' => $percentage,
                     'execution_status' => "Registros con considencias",
@@ -114,10 +126,10 @@ class PersonPublicController extends Controller
             return response()->json(
                 [
                     'data' => [],
-                    'uuid' => Str::uuid(),
+                    'uuid' => $uuid,
                     'search_name' => $search,
                     'percent_search' => $percentage,
-                    'execution_status' => "Error del sistema",
+                    'execution_status' => "Error del sistema " .$ex->getMessage().' '.$ex->getLine(),
                     "error" => true,
                     'count' => 0,
                     "class" => 'alert alert-danger'
@@ -127,7 +139,69 @@ class PersonPublicController extends Controller
         }
     }
 
-    function _levenshtein($str1, $str2, $value, $percentage)
+    /*
+    |-------------------------------------------------------------------------------
+    | previousFilterPersonPublic
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/previousFilterPersonPublic
+    | Method:         Post
+    | Description:    Se retorna un objecto con todos las personas publicas buscadas anteriormente.
+    */
+    public function previousFilterPersonPublic(Request $request)
+    {
+
+        try {
+
+            $personPublicPrevious= PersonPublicpreviousModel::getPersonPublicPrevious($request->uuid);
+
+            return response()->json(
+                [
+                    'data' =>  $personPublicPrevious,
+                    'uuid' => $request->uuid,
+                    'search_name' => '',
+                    'percent_search' => '',
+                    'execution_status' => "Registros anteriores",
+                    "error" => false,
+                    'count' =>1,
+                    "class" => 'alert alert-info'
+                ],
+                200
+            );
+        } catch (\Exception $ex) {
+
+            return response()->json(
+                [
+                    'data' => [],
+                    'uuid' =>$request->uuid,
+                    'search_name' => '',
+                    'percent_search' => '',
+                    'execution_status' => "Error del sistema " .$ex->getMessage().' '.$ex->getLine(),
+                    "error" => true,
+                    'count' => 0,
+                    "class" => 'alert alert-danger'
+                ],
+                500
+            );
+        }
+
+
+    }
+
+
+
+
+
+
+
+    /*
+    |-------------------------------------------------------------------------------
+    | _levenshtein
+    |-------------------------------------------------------------------------------
+    | Method:         Post
+    | Description:    Asignación del porcentaje de similitud.
+    */
+
+    function _levenshtein($str1, $str2, $value, $percentage,$uuid)
     {
 
         $percentageCoincidence = doubleval(number_format((1 - levenshtein($str1, $str2) / max(strlen($str1), strlen($str2))) * 100, 2));
@@ -135,6 +209,7 @@ class PersonPublicController extends Controller
         if ($percentageCoincidence == doubleval($percentage)) {
 
             array_push($this->arrayPersonPublicFilter, [
+                'uuid'=>$uuid,
                 "porcentage" => $percentageCoincidence,
                 "name" => $value->name,
                 "person_type" => $value->person_type,
@@ -147,6 +222,7 @@ class PersonPublicController extends Controller
         if($percentage == ""){
 
             array_push($this->arrayPersonPublicFilter, [
+                'uuid'=>$uuid,
                 "porcentage" => $percentageCoincidence,
                 "name" => $value->name,
                 "person_type" => $value->person_type,

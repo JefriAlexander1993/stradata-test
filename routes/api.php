@@ -24,15 +24,100 @@ Route::group([
 
 ], function () {
 
-    Route::post('/login', 'AuthController@login');
+    /*
+    |-------------------------------------------------------------------------------
+    | Login
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/cafes/{id}
+    | Controller:     Api\AuthController@login
+    | Method:         GET
+    | Description:    Logueo
+    */
+    Route::post('/login', 'AuthController@login')->name('login');
+    /*
+    |-------------------------------------------------------------------------------
+    | Register
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/register
+    | Controller:     Api\AuthController@register
+    | Method:         GET
+    | Description:    Regsitro de nuevo usuario
+    */
+    Route::post('/register', 'AuthController@register')->name('register');
+    /*
+    |-------------------------------------------------------------------------------
+    | logout
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/logout
+    | Controller:     Api\AuthController@logout
+    | Method:         GET
+    | Description:    Cerrar sesión
+    */
     Route::post('/logout', 'AuthController@logout');
     // Route::post('refresh', 'AuthController@refresh');
-    Route::post('/me', 'AuthController@me');
+    /*
+    |-------------------------------------------------------------------------------
+    | getUser
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/getUser
+    | Controller:     Api\AuthController@getUser
+    | Method:         GET
+    | Description:    Usuario autenticado
+    */
+    Route::post('/getUser', 'AuthController@getUser');
+    // Route::post('refresh', 'AuthController@refresh');
+    /*
+    |-------------------------------------------------------------------------------
+    | checkToken
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/checkToke
+    | Controller:     Api\AuthController@checkToke
+    | Method:         GET
+    | Description:    Ficha de verificación.
+    */
     Route::post('/checkToken', 'AuthController@checkToken');
+    /*
+    |-------------------------------------------------------------------------------
+    | index
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/index
+    | Controller:     Api\AuthController@index
+    | Method:         GET
+    | Description:    Dashboard.
+    */
     Route::post('/admin', 'AdminController@index');
-
-    Route::get('/file-import-export', 'PersonPublicController@fileImportExport')->name('file-import-export');
-    Route::post('/file-import', 'PersonPublicController@fileImport')->name('file-import');
+    /*
+    |-------------------------------------------------------------------------------
+    | fileExport
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/fileExport
+    | Controller:     Api\AuthController@fileExport
+    | Method:         GET
+    | Description:    Exportar un excel de personas publicas.
+    */
     Route::post('/file-export', 'PersonPublicController@fileExport')->name('file-export');
+    /*
+    |-------------------------------------------------------------------------------
+    | filterPersonPublic
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/filterPersonPublic
+    | Controller:     Api\AuthController@filterPersonPublic
+    | Method:         GET
+    | Description:    Filtro de personas publicas.
+    */
+
     Route::post('/filter-person-public', 'PersonPublicController@filterPersonPublic')->name('filter-person-public');
+
+
+    /*
+    |-------------------------------------------------------------------------------
+    |  previousFilterPersonPublic
+    |-------------------------------------------------------------------------------
+    | URL:            /api/v1/ previousFilterPersonPublic
+    | Controller:     Api\AuthController@ previousFilterPersonPublic
+    | Method:         GET
+    | Description:    Filtro de personas publicas.
+    */
+
+    Route::post('/filter-person-public-previous', 'PersonPublicController@previousFilterPersonPublic')->name('filter-person-public-previos');
 });

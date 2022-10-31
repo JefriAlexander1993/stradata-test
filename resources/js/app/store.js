@@ -8,6 +8,8 @@ Vue.use(Vuex);
 export const store =  new Vuex.Store({
     state:{
         token:localStorage.getItem('auth') || '',
+        autorized:localStorage.getItem('auth') ? true: false,
+        user:localStorage.getItem('user') || '',
     },
     mutations:{
         setToken(state,token){
@@ -15,9 +17,18 @@ export const store =  new Vuex.Store({
             state.token = token;
 
         },
-        clearToken(){
+        setUser(state,name){
+            state.user = name;
+        },
+        setAutorized(state,status){
+            state.autorized = status;
+        },
+        clearToken(state){
             localStorage.removeItem('auth');
-            state.token = '';
+            state.token = "";
+            state.user ="";
+            state.autorized ="";
+
         }
     }
 

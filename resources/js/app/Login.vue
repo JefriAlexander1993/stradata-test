@@ -1,22 +1,27 @@
 
 <template>
-    <div>
+    <div class="container">
         <div v-if="loading">
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                  <span class="sr-only">Loading...</span>
+            <br/><br/>
+            <div class="d-flex justify-content-center text-primary">
+                <div class="spinner-border" role="status text-primary">
+                  <span class="sr-only"></span>
                 </div>
               </div>
+              <br/>
         </div>
-        <div class="login" v-else="">
-            <!-- <p>There was an error, unable to sign in with those credentials.</p> -->
-            <!-- <div class="alert alert-danger" v-if="error">
-                <p>There was an error, unable to sign in with those credentials.</p>
-            </div> -->
 
+        <div class="login" v-else="">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-2" v-if="alert">
+                        <div :class="classAlert" role="alert" style="font-size: 14px;">
+                            {{message}}
+                        </div>
+                    </div>
+                </div>
                 <form autocomplete="off" @submit.prevent="login" method="post">
                     <div class="form-group">
-                        <label for="email">E-mail</label>
+                        <label for="email"><b>E-mail</b></label>
                         <input
                             type="email"
                             id="email"
@@ -27,19 +32,20 @@
                         />
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
+                        <label for="password"><b>Contraseña</b></label>
                         <input
                             type="password"
                             id="password"
                             class="form-control"
                             v-model="user.password"
+                            placeholder="******"
                             required
                         />
                     </div>
-                    <button type="submit" class="btn btn-success btn-block">Sign in</button>
+                    <button type="submit" class="btn btn-success btn-block">Ingresar</button>
                 </form>
         </div>
-    </div>
+</div>
 </template>
 <script>
 
@@ -53,7 +59,10 @@ export default {
                 email:"",
                 password:""
             },
-            loading:true
+            loading:true,
+            classAlert:"",
+            message:"",
+            alert:false,
         }
     },
     mounted(){
@@ -73,21 +82,34 @@ export default {
         });
         }else{
             this.loading = false;
+            this.$store.state.token = "";
         }
     },
   methods: {
     login() {
+        this.loading = true;
       axios
         .post("/api/v1/login",this.user)
         .then((response) => {
-            if (response.data.success) {
-                this.$store.commit('setToken',response.data.token);
+
+                this.loading = false;
+                this.alert= true;
+                this.message = response.data.message;
+                this.classAlert = response.data.classAlert;
+                this.$store.commit('setToken',response.data.data[0]);
+                this.$store.commit('setUser',response.data.data[1]);
+                localStorage.setItem('user', response.data.data[1]);
+                this.$store.commit('setAutorized',true);
                 this.$router.push("/dashboard");
-            }
+
 
         })
         .catch((error) => {
-          console.log(error);
+            this.loading = false;
+            this.alert= true;
+            this.message = error.response.data.message;
+            this.classAlert = error.response.data.class;
+
         });
     },
 
@@ -99,7 +121,7 @@ export default {
 .login{
 
     background-color: #fff;
-    border:1px solid #EEE;
+    border:3px solid #EEE;
     padding: 10px;
     margin: 50px auto;
     width: 500px;
@@ -107,7 +129,7 @@ export default {
 }
 button{
     display: block;
-    margin-top: 20px;
+    margin-top: 10px;
 
 }
 

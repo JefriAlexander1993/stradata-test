@@ -1,9 +1,8 @@
 <?php
 
 namespace App;
-
-use App\PersonPublic;
-use Illuminate\Support\Facades\DB;
+use App\User;
+use Illuminate\Support\Facades\Hash;
 use Validator;
 // app includes
 
@@ -13,8 +12,6 @@ use Validator;
  */
 class UserModel
 {
-
-
     /**
      * get validator for PersonPublic
      * @param array $data information from form
@@ -55,5 +52,22 @@ class UserModel
 
 
         return  $validator;
+    }
+
+    /**
+     * create the User
+     * @param array $data
+     * @return Object User
+     */
+
+    public static function create($request)
+    {
+       $user =  User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return $user;
     }
 }

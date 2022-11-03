@@ -108,7 +108,6 @@ Route::group([
 
     Route::post('/filter-person-public', 'PersonPublicController@filterPersonPublic')->name('filter-person-public');
 
-
     /*
     |-------------------------------------------------------------------------------
     |  previousFilterPersonPublic

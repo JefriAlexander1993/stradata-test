@@ -43,7 +43,7 @@ class PersonPublicModel {
     public static function consultPersonPublic($search) {
 
         $personPublics = PersonPublic::where('name', 'like', "%$search%")->get();
-        $data = DB::select("select *,100.00 as porcentage from person_publics where soundex(name) =  SOUNDEX( '$search' )");
+        $data = DB::select("select *,100.00 as porcentage from person_publics where soundex(name) =  SOUNDEX('$search')");
 
 
         return [

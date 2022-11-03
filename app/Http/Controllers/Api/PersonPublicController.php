@@ -58,6 +58,7 @@ class PersonPublicController extends Controller
             }
 
             $consultPersonPublic = PersonPublicModel::consultPersonPublic($search);
+
             if (count($consultPersonPublic['data']) > 0) {
                 return response()->json(
                     [
@@ -87,13 +88,14 @@ class PersonPublicController extends Controller
                     'uuid' => $uuid,
                     'search_name' => $search,
                     'percent_search' => $percentage,
-                    'execution_status' =>count($this->arrayPersonPublicFilter)>0? "Registros con considencias":'Sin considencia',
+                    'execution_status' =>count($this->arrayPersonPublicFilter)>0? "Registros con considencias":'Sin concidencia',
                     "error" => false,
                     'count' => count($this->arrayPersonPublicFilter),
                     "class" => 'alert alert-info'
                 ],
                 200
             );
+
         } catch (\Exception $ex) {
             return response()->json(
                 [

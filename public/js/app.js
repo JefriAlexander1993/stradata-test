@@ -24283,7 +24283,7 @@ var render = function render() {
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h1", [_vm._v("Laravel 5 Vue SPA Authentication")])]);
+  return _c("div", [_c("h1", [_vm._v("Loading page")])]);
 }];
 render._withStripped = true;
 

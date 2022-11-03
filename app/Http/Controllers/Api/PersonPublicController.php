@@ -25,25 +25,6 @@ class PersonPublicController extends Controller
         $this->middleware('jwtauth');
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function fileExport(Request $request)
-    {
-
-        return response()->json(new PersonPublicExport($request->data, Carbon::now()->format('Ymdhms') . '-person-public-collection.xlsx'), 200);
-
-        // new PersonPublicExport($request->data,$filename);
-
-        // $fullPath = Storage::disk('local')->path($filename);
-
-        // return response()->json([
-        //     'data' => $fullPath,
-        //     'message' => 'Products are successfully exported.'
-        // ], 200);
-
-
-    }
     /*
     |-------------------------------------------------------------------------------
     | filterPersonPublic
@@ -85,7 +66,6 @@ class PersonPublicController extends Controller
             }
 
             $consultPersonPublic = PersonPublicModel::consultPersonPublic($search);
-            // dd($consultPersonPublic['data']);
             if (count($consultPersonPublic['data']) > 0) {
                 return response()->json(
                     [
@@ -115,7 +95,7 @@ class PersonPublicController extends Controller
                     'uuid' => $uuid,
                     'search_name' => $search,
                     'percent_search' => $percentage,
-                    'execution_status' => "Registros con considencias",
+                    'execution_status' =>count($this->arrayPersonPublicFilter)>0? "Registros con considencias":'Sin considencia',
                     "error" => false,
                     'count' => count($this->arrayPersonPublicFilter),
                     "class" => 'alert alert-info'
